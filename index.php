@@ -1,3 +1,32 @@
+<?php
+session_start();
+
+require('config.php');
+//print $_SESSION ['username'];
+
+/*if(!isset($_SESSION['username']))
+{
+	header('Location:index.php');
+}
+*/
+
+function count_user($conn, $category){
+		 
+		$sql = "SELECT count(*) as count from stud_rec WHERE category='$category' ";
+		
+		  
+		$result = mysqli_query($conn, $sql) or die(mysqli_error($conn));
+		
+		
+		
+		$bil=1;
+		while($row = $result->fetch_assoc()) {
+		  return $row['count'];
+		}
+}
+	
+?>
+	
 <!DOCTYPE html>
 <html lang="en">
 
@@ -243,7 +272,7 @@
                       <i class="ri-group-line"></i>
                     </div>
                     <div class="ps-3">
-                      <h6>staff</h6>
+                      <h6><?php echo count_user($conn, 'staff'); ?></h6>
                       
 
                     </div>
@@ -265,7 +294,61 @@
 
               <!-- Line Chart -->
               <canvas id="Student" style="max-height: 400px;"></canvas>
-              
+              <script>
+                document.addEventListener("DOMContentLoaded", () => {
+                  new Chart(document.querySelector('#Student'), {
+                    type: 'line',
+                    data: {
+                      labels: [	
+					  <?php
+						$sql = "SELECT MONTHNAME(created_date) as bulan, count(*) FROM student_attendance group by MONTH(created_date)";
+						//echo $sql;
+						$result = mysqli_query($conn, $sql) or die(mysqli_error($conn));
+						$a=1;
+						while($row = $result->fetch_assoc()) {
+					  ?>					  
+					  '<?php echo $row['bulan']; ?>', 
+					  <?php
+
+						}
+		
+		
+					   ?>
+					  ],
+                      datasets: [{
+                        label: 'Student',
+                        data: [
+						<?php
+						$sql2 = "SELECT MONTH(created_date) as bulan, count(*) as count FROM student_attendance INNER JOIN stud_rec WHERE category = 'STUDENT' group by MONTH(created_date)";
+						//echo $sql;
+						$result2 = mysqli_query($conn, $sql2) or die(mysqli_error($conn));
+						$a=1;
+						while($row2 = $result2->fetch_assoc()) {
+					  ?>
+						<?php echo $row2['count']; ?>, 
+						<?php
+
+						}
+		
+		
+					   ?>
+						
+						],
+                        fill: false,
+                        borderColor: 'rgb(75, 192, 192)',
+                        tension: 0.1
+                      }]
+                    },
+                    options: {
+                      scales: {
+                        y: {
+                          beginAtZero: true
+                        }
+                      }
+                    }
+                  });
+                });
+              </script>
               <!-- End Line CHart -->
 			  
 			  
@@ -282,7 +365,55 @@
 
               <!-- Line Chart -->
               <canvas id="lineChart" style="max-height: 400px;"></canvas>
-            
+              <script>
+                document.addEventListener("DOMContentLoaded", () => {
+                  new Chart(document.querySelector('#lineChart'), {
+                    type: 'line',
+                    data: {
+                      labels: [	
+					  <?php
+						$sql = "SELECT MONTHNAME(created_date) as bulan, count(*) FROM student_attendance group by MONTH(created_date)";
+						//echo $sql;
+						$result = mysqli_query($conn, $sql) or die(mysqli_error($conn));
+						$a=1;
+						while($row = $result->fetch_assoc()) {
+					  ?>					  
+					  '<?php echo $row['bulan']; ?>', 
+					  <?php
+						}
+					   ?>
+					  ],
+                      datasets: [{
+                        label: 'staff',
+                        data:[
+						<?php
+						$sql2 = "SELECT MONTH(created_date) as bulan, count(*) as count FROM student_attendance INNER JOIN stud_rec WHERE category = 'STAFF' group by MONTH(created_date)";
+						//echo $sql;
+						$result2 = mysqli_query($conn, $sql2) or die(mysqli_error($conn));
+						$a=1;
+						while($row2 = $result2->fetch_assoc()) {
+					  ?>
+						<?php echo $row2['count']; ?>, 
+						<?php
+						}
+					   ?>
+						],
+                        fill: false,
+                        borderColor: 'rgb(75, 192, 192)',
+                        tension: 0.1
+                      }]
+                    },
+                    options: {
+                      scales: {
+                        y: {
+                          beginAtZero: true
+                        }
+                      }
+                    }
+                  });
+                });
+              </script>
+              <!-- End Line CHart -->
 
             </div>
           </div>
@@ -297,6 +428,63 @@
 
               <!-- Bar Chart -->
               <canvas id="staff" style="max-height: 400px;"></canvas>
+              <script>
+                document.addEventListener("DOMContentLoaded", () => {
+                  new Chart(document.querySelector('#staff'), {
+                    type: 'bar',
+                    data: {
+                      labels: [
+					  <?php
+						$sql3 = "SELECT department, count(*) FROM `student_attendance` 
+						JOIN stud_rec ON student_attendance.id_stud_rec=stud_rec.id GROUP BY department";
+						//echo $sql;
+						$result3 = mysqli_query($conn, $sql3) or die(mysqli_error($conn));
+						$a=1;
+						while($row3 = $result3->fetch_assoc()) {
+					  ?>
+					  '<?php echo $row3['department']; ?>', 
+						<?php } ?>
+					  ],
+                      datasets: [{
+                        label: 'Jabatan',
+                        data: [
+						<?php
+						$sql4 = "SELECT department, count(*) as count FROM `student_attendance` 
+						JOIN stud_rec ON student_attendance.id_stud_rec=stud_rec.id GROUP BY department";
+						//echo $sql;
+						$result4 = mysqli_query($conn, $sql4) or die(mysqli_error($conn));
+						$a=1;
+						while($row4 = $result4->fetch_assoc()) {
+					  ?>
+					  <?php echo $row4['count']; ?>, 
+					  <?php } ?>
+					  ],
+                        backgroundColor: [
+                          'rgb(217, 246, 211 )',
+                          'rgb(255, 152, 162)',
+                          'rgb(255, 255, 200)',
+                          'rgb(255, 223, 192)',
+                         
+                        ],
+                        borderColor: [
+                          'rgb(217, 246, 211 )',
+                          'rgb(255, 152, 162)',
+                          'rgb(255, 255, 200)',
+                          'rgb(255, 223, 192)',
+                        ],
+                        borderWidth: 1
+                      }]
+                    },
+                    options: {
+                      scales: {
+                        y: {
+                          beginAtZero: true
+                        }
+                      }
+                    }
+                  });
+                });
+              </script>
               <!-- End Bar CHart -->
             </div>
           </div>
@@ -312,7 +500,42 @@
               <!-- Recent Activity Content -->
               <div class="activity">
 			  
-			 
+			  <?php
+					$sql = "SELECT  
+						student_attendance.id_student_attendance as id,
+						stud_rec.ic as ic,
+						stud_rec.name as name,
+						stud_rec.gender as gender,
+						stud_rec.department as department,
+						count(*) as count,
+						stud_rec.category as category
+						FROM 
+					student_attendance 
+					JOIN stud_rec ON student_attendance.id_stud_rec=stud_rec.id 
+					group by student_attendance.id_stud_rec  
+					ORDER BY count DESC
+					";
+					//echo $sql;
+					$result = mysqli_query($conn, $sql) or die(mysqli_error($conn));
+					$a=1;
+					while($row = $result->fetch_assoc()) {
+				 
+					?>
+					
+
+                <!-- Recent Activity Items -->
+                <div class="activity-item d-flex">
+                  <div class="activite-label">TOP <?php echo $a++; ?></div>
+                  <i class='bi bi-circle-fill activity-badge text-success align-self-start'></i>
+                  <div class="activity-content">
+                   <a href="#" class="fw-bold text-dark">  </a>  <?php echo $row['name'];?>  <b><span>
+				   | <?php echo $row['category'];?> | 
+					<?php echo $row['count'];?> TIMES</span></b>
+                  </div>
+                </div><!-- End activity item-->
+				<?php
+					}
+					?>
               </div>
             </div>
           </div><!-- End Recent Activity -->
