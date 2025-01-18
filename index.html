@@ -1,32 +1,3 @@
-<?php
-session_start();
-
-require('config.php');
-//print $_SESSION ['username'];
-
-/*if(!isset($_SESSION['username']))
-{
-	header('Location:index.php');
-}
-*/
-
-function count_user($conn, $category){
-		 
-		$sql = "SELECT count(*) as count from stud_rec WHERE category='$category' ";
-		
-		  
-		$result = mysqli_query($conn, $sql) or die(mysqli_error($conn));
-		
-		
-		
-		$bil=1;
-		while($row = $result->fetch_assoc()) {
-		  return $row['count'];
-		}
-}
-	
-?>
-	
 <!DOCTYPE html>
 <html lang="en">
 
